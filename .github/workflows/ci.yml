@@ -13,15 +13,15 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Construire l'image Docker
-        run: docker build -t bechir-lahouel/tpnote:${{ github.sha }} .
+        run: docker build -t bechirlahouel/tpnote:${{ github.sha }} .
 
       - name: Connexion à Docker Hub
         run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
       - name: Pousser l'image Docker
         run: |
-          docker tag bechir-lahouel/tpnote:${{ github.sha }} bechir-lahouel/tpnote:latest
-          docker push bechir-lahouel/tpnote:latest
+          docker tag bechirlahouel/tpnote:${{ github.sha }} bechirlahouel/tpnote:latest
+          docker push bechirlahouel/tpnote:latest
 
   deploy:
     needs: build
