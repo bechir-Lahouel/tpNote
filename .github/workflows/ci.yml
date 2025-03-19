@@ -12,6 +12,11 @@ jobs:
       - name: Checkout du code
         uses: actions/checkout@v4
 
+      - name: Vérifier que Docker est bien actif
+        run: |
+          docker --version
+          docker ps
+
       - name: Construire l'image Docker
         run: docker build -t bechirlahouel/tpnote:${{ github.sha }} .
 
@@ -40,6 +45,11 @@ jobs:
           curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
           sudo install minikube-linux-amd64 /usr/local/bin/minikube
 
+      - name: Vérifier que Docker fonctionne pour Minikube
+        run: |
+          docker ps
+          minikube delete || true  # Supprime d'anciennes configurations si elles existent
+
       - name: Démarrer Minikube
         run: |
           minikube start --driver=docker
@@ -55,15 +65,12 @@ jobs:
           echo "Kubernetes Context: $(kubectl config current-context)"
 
       - name: Attendre que Minikube soit prêt
-        run: sleep 20  # Attendre 20 secondes pour s'assurer que tout est bien initialisé
+        run: sleep 30  # Attendre 30 secondes pour s'assurer que tout est bien initialisé
 
       - name: Vérifier la connexion au cluster Kubernetes
         run: |
           kubectl cluster-info
           kubectl get nodes
-
-      - name: Vérifier la présence des fichiers
-        run: ls -l  # Vérifie si `deployment.yml` et `service.yml` sont bien présents
 
       - name: Déployer sur Kubernetes
         run: |
