@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout du code
-        uses: actions/checkout@v4  # 👈 Récupère le code du dépôt GitHub
+        uses: actions/checkout@v4
 
       - name: Construire l'image Docker
         run: docker build -t bechirlahouel/tpnote:${{ github.sha }} .
@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout du code
-        uses: actions/checkout@v4  #  Récupère le repo pour avoir `deployment.yml` et `service.yml`
+        uses: actions/checkout@v4
 
       - name: Installer kubectl
         uses: azure/setup-kubectl@v3
@@ -41,22 +41,28 @@ jobs:
           sudo install minikube-linux-amd64 /usr/local/bin/minikube
 
       - name: Démarrer Minikube
-        run: minikube start --driver=docker
+        run: |
+          minikube start --driver=docker
+          minikube addons enable default-storageclass
+          minikube addons enable storage-provisioner
 
       - name: Vérifier si Minikube est bien lancé
         run: minikube status
 
-      - name: Configurer kubectl pour Minikube
-        run: kubectl config use-context minikube
+      - name: Configurer `kubectl` pour Minikube
+        run: |
+          kubectl config use-context minikube
+          echo "Kubernetes Context: $(kubectl config current-context)"
 
       - name: Vérifier la connexion au cluster Kubernetes
         run: kubectl get nodes
 
       - name: Vérifier la présence des fichiers
-        run: ls -l  #  Vérifie si `deployment.yml` et `service.yml` sont bien présents
+        run: ls -l  # Vérifie si `deployment.yml` et `service.yml` sont bien présents
 
       - name: Déployer sur Kubernetes
         run: |
+          kubectl cluster-info
           kubectl apply --validate=false -f deployment.yml
           kubectl apply --validate=false -f service.yml
         env:
