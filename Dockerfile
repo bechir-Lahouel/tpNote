@@ -1,20 +1,8 @@
-# Utilisation de Node.js 18
-FROM node:18
+# Use the official Nginx image as the base image
+FROM nginx:alpine
 
-# Définition du répertoire de travail
-WORKDIR /app
+# Copy the index.html file into the Nginx server's root directory
+COPY index.html /usr/share/nginx/html/
 
-# Installer npm globalement pour s'assurer qu'il est disponible
-RUN npm install -g npm@latest
-
-# Copier tout le code source
-COPY . .
-
-# Installer les dépendances directement dans Docker
-RUN npm install --legacy-peer-deps || npm install --force
-
-# Exposer le port 3000
-EXPOSE 3000
-
-# Commande de lancement
-CMD ["node", "server.js"]
+# Expose the port that Nginx is listening on (default is 80)
+EXPOSE 80
