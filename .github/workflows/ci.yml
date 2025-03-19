@@ -16,7 +16,7 @@ jobs:
         run: docker build -t bechirlahouel/tpnote:${{ github.sha }} .
 
       - name: Connexion à Docker Hub
-        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Pousser l'image Docker
         run: |
@@ -27,7 +27,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout du code  # 👈 Télécharge le repo (important pour que deployment.yml soit accessible)
+      - name: Checkout du code  # 👈 Télécharge le repo pour avoir deployment.yml et service.yml
         uses: actions/checkout@v4
 
       - name: Installer kubectl
@@ -35,7 +35,7 @@ jobs:
         with:
           version: 'latest'
 
-      - name: Vérifier la présence des fichiers # 👈 Vérifie si les fichiers existent bien
+      - name: Vérifier la présence des fichiers
         run: ls -l
 
       - name: Déployer sur Kubernetes
@@ -43,4 +43,4 @@ jobs:
           kubectl apply -f deployment.yml
           kubectl apply -f service.yml
         env:
-        KUBECONFIG: ${{ secrets.KUBECONFIG }}
+          KUBECONFIG: ${{ secrets.KUBECONFIG }}
