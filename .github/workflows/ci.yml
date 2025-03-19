@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout du code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4  # 👈 Télécharge le code du repo
 
       - name: Construire l'image Docker
         run: docker build -t bechirlahouel/tpnote:${{ github.sha }} .
@@ -27,15 +27,20 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout du code  # 👈 Télécharge le repo (important pour que deployment.yml soit accessible)
+        uses: actions/checkout@v4
+
       - name: Installer kubectl
         uses: azure/setup-kubectl@v3
         with:
           version: 'latest'
 
+      - name: Vérifier la présence des fichiers # 👈 Vérifie si les fichiers existent bien
+        run: ls -l
+
       - name: Déployer sur Kubernetes
         run: |
-          kubectl apply -f ../deployment.yml
-          kubectl apply -f ../service.yml
+          kubectl apply -f deployment.yml
+          kubectl apply -f service.yml
         env:
-          KUBECONFIG: ${{ secrets.KUBECONFIG }}
-
+        KUBECONFIG: ${{ secrets.KUBECONFIG }}
