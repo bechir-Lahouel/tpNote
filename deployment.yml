@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: mon-app
-          image: bechir-lahouel/tpNote:latest
+          image: docker.io/bechirlahouel/tpnote:latest
           ports:
             - containerPort: 3000
 
