@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI/CD Pipeline avec Minikube et Kubernetes
 
 on:
   push:
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout du code
-        uses: actions/checkout@v4  # 👈 Télécharge le code du repo
+        uses: actions/checkout@v4  # 👈 Récupère le code du dépôt GitHub
 
       - name: Construire l'image Docker
         run: docker build -t bechirlahouel/tpnote:${{ github.sha }} .
@@ -27,20 +27,37 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout du code  # 👈 Télécharge le repo pour avoir deployment.yml et service.yml
-        uses: actions/checkout@v4
+      - name: Checkout du code
+        uses: actions/checkout@v4  #  Récupère le repo pour avoir `deployment.yml` et `service.yml`
 
       - name: Installer kubectl
         uses: azure/setup-kubectl@v3
         with:
           version: 'latest'
 
+      - name: Installer Minikube
+        run: |
+          curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+          sudo install minikube-linux-amd64 /usr/local/bin/minikube
+
+      - name: Démarrer Minikube
+        run: minikube start --driver=docker
+
+      - name: Vérifier si Minikube est bien lancé
+        run: minikube status
+
+      - name: Configurer kubectl pour Minikube
+        run: kubectl config use-context minikube
+
+      - name: Vérifier la connexion au cluster Kubernetes
+        run: kubectl get nodes
+
       - name: Vérifier la présence des fichiers
-        run: ls -l
+        run: ls -l  #  Vérifie si `deployment.yml` et `service.yml` sont bien présents
 
       - name: Déployer sur Kubernetes
         run: |
-          kubectl apply -f deployment.yml
-          kubectl apply -f service.yml
+          kubectl apply --validate=false -f deployment.yml
+          kubectl apply --validate=false -f service.yml
         env:
           KUBECONFIG: ${{ secrets.KUBECONFIG }}
