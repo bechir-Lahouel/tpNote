@@ -54,15 +54,19 @@ jobs:
           kubectl config use-context minikube
           echo "Kubernetes Context: $(kubectl config current-context)"
 
+      - name: Attendre que Minikube soit prêt
+        run: sleep 20  # Attendre 20 secondes pour s'assurer que tout est bien initialisé
+
       - name: Vérifier la connexion au cluster Kubernetes
-        run: kubectl get nodes
+        run: |
+          kubectl cluster-info
+          kubectl get nodes
 
       - name: Vérifier la présence des fichiers
         run: ls -l  # Vérifie si `deployment.yml` et `service.yml` sont bien présents
 
       - name: Déployer sur Kubernetes
         run: |
-          kubectl cluster-info
           kubectl apply --validate=false -f deployment.yml
           kubectl apply --validate=false -f service.yml
         env:
